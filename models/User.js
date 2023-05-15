@@ -2,76 +2,66 @@ const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
 
-    id: {
+    username: {
         type: String,
         required: true,
-        lowercase: true,
         unique: true,
-        match: /^[a-z0-9]{4,16}$/
+        minlength: 4,
+        maxlength: 16,
+        match: /^[a-z0-9]+$/,
     },
     password: {
         type: String,
         required: true,
         minlength: 10,
         maxlength: 16,
-        match: /^(?=.*[A-Za-z])(?=.*\d|.*[\[\]!@#$%^&*()\-_=+{};:,<.>]).{2,}$/
+        validate: {
+            validator: function(value) {
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
+                return passwordRegex.test(value);
+            },
+            message: '비밀번호는 영문 대문자, 소문자, 숫자, 특수문자 중 2가지 이상을 조합하여야 합니다.',
+        },
     },
-    confirmPassword: {
+    passwordConfirmation: {
         type: String,
         required: true,
         validate: {
-            validator: function (value) {
-                const password = this.password;
-                return value === password;
+            validator: function(value) {
+                return value === this.password;
             },
-            message: 'Passwords do not match'
-        }
+            message: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
+        },
     },
     name: {
         type: String,
-        required: true
+        required: true,
     },
     address: {
         type: String,
-        required: true
+        required: true,
     },
-    phoneNumber: {
+    phone: {
         type: String,
-        required: true
+        required: true,
+    },
+    mobile: {
+        type: String,
+        required: true,
     },
     email: {
         type: String,
-        trim: true,
         required: true,
-        unique: 1,
-        match: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female'],
-        required: true
+        enum: ['male', 'female'],
+        required: true,
     },
-    birthDate: {
+    birthday: {
         type: Date,
-        required: true
+        required: true,
     },
-    termsAgreement: {
-        type: Boolean,
-        required: true
-    },
-    privacyAgreement: {
-        type: Boolean,
-        required: true
-    },
-    smsAgreement: {
-        type: Boolean,
-        required: true
-    },
-    emailAgreement: {
-        type: Boolean,
-        required: true
-    },
-
     role: {
         type: Number,
         default: 0
@@ -83,7 +73,7 @@ const userSchema = mongoose.Schema({
     tokenExp: {
         type: Number
     }
-})
+});
 
 const User = mongoose.model('User', userSchema)
 
